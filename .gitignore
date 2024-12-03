@@ -1,4 +1,4 @@
-config.yaml
+config*
 logs/*
 
 .DS_Store
