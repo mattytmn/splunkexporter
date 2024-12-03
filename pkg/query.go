@@ -3,16 +3,21 @@ package pkg
 import (
 	"fmt"
 	"log"
-	"time"
 
+	"github.com/mattytmn/splunkextractor/internal"
 	"github.com/spf13/viper"
 )
 
-func RunSplunkQuery() {
-	fmt.Println(time.February)
+func RunSplunkQuery(month, year string) {
+	directoryName := fmt.Sprintf("%s_%s", month, year)
+	filepath := internal.CreateLogsDir(directoryName)
+	internal.CreateLogFile(filepath)
+	monthAndYear := fmt.Sprintf("%s %s", month, year)
+	days := internal.GetDaysInMonth(monthAndYear)
+	fmt.Printf("Days in month %d \n", days)
 }
-func GetTokenValue() string {
 
+func GetTokenValue() string {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")

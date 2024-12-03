@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/mattytmn/splunkextractor/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -18,9 +19,7 @@ var rootCmd = &cobra.Command{
 	Long:  "A fast way to extract all information from splunk for a given query and time period",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Getting splunk logs")
-		fmt.Println(SplunkMonth)
-		fmt.Println(SplunkYear)
-
+		pkg.RunSplunkQuery(SplunkMonth, SplunkYear)
 	},
 }
 
