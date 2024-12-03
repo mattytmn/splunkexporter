@@ -8,13 +8,20 @@ import (
 	"github.com/spf13/viper"
 )
 
+var token string = GetTokenValue()
+
 func RunSplunkQuery(month, year string) {
 	directoryName := fmt.Sprintf("%s_%s", month, year)
 	filepath := internal.CreateLogsDir(directoryName)
 	internal.CreateLogFile(filepath)
 	monthAndYear := fmt.Sprintf("%s %s", month, year)
-	days := internal.GetDaysInMonth(monthAndYear)
-	fmt.Printf("Days in month %d \n", days)
+	days, first, last := internal.GetDaysInMonth(monthAndYear)
+
+	for i := 1; i <= days; i++ {
+		fmt.Println(i)
+	}
+	fmt.Println(first)
+	fmt.Println(last)
 }
 
 func GetTokenValue() string {

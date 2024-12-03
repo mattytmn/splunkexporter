@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	timeLayout   = "January 2006"
+	timeLayout = "January 2006"
+	// mm/dd/yyyy:hr:min:sec
 	splunkLayout = "01/02/2006:15:04:05"
 )
 
@@ -35,14 +36,18 @@ func CreateLogFile(filepath string) error {
 	return nil
 }
 
-func GetDaysInMonth(monthAndYear string) int {
+func GetDaysInMonth(monthAndYear string) (days int, firstDay, lastDay string) {
 	t, _ := time.Parse(timeLayout, monthAndYear)
 	fmt.Println(t.Date())
+	firstDay = t.Format(splunkLayout)
+	lastDay = t.AddDate(0, 1, 0).Format(splunkLayout)
 	lastOfYear := time.Date(2024, 12, 01, 0, 0, 0, 0, time.UTC)
 	fmt.Println(lastOfYear.Format(splunkLayout))
+	fmt.Println(firstDay)
 
 	fmt.Println(lastOfYear.AddDate(0, 1, 0))
-	return time.Date(t.Year(), t.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
+	days = time.Date(t.Year(), t.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
+	return days, firstDay, lastDay
 }
 
 func check(e error) {
