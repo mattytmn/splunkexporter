@@ -36,18 +36,20 @@ func CreateLogFile(filepath string) error {
 	return nil
 }
 
-func GetDaysInMonth(monthAndYear string) (days int, firstDay, lastDay string) {
-	t, _ := time.Parse(timeLayout, monthAndYear)
+func GetDaysInMonth(monthAndYear string) (days int, t time.Time) {
+	t, _ = time.Parse(timeLayout, monthAndYear)
 	fmt.Println(t.Date())
-	firstDay = t.Format(splunkLayout)
-	lastDay = t.AddDate(0, 1, 0).Format(splunkLayout)
-	lastOfYear := time.Date(2024, 12, 01, 0, 0, 0, 0, time.UTC)
-	fmt.Println(lastOfYear.Format(splunkLayout))
-	fmt.Println(firstDay)
+	// lastOfYear := time.Date(2024, 12, 01, 0, 0, 0, 0, time.UTC)
 
-	fmt.Println(lastOfYear.AddDate(0, 1, 0))
 	days = time.Date(t.Year(), t.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
-	return days, firstDay, lastDay
+	return days, t
+}
+
+func QueryDates(t time.Time) (earliest, latest string) {
+	earliest = t.Format(splunkLayout)
+	latest = t.AddDate(0, 0, 1).Format(splunkLayout)
+
+	return earliest, latest
 }
 
 func check(e error) {
