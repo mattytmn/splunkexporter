@@ -2,14 +2,18 @@ package pkg
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/mattytmn/splunkextractor/internal"
 	"github.com/spf13/viper"
 )
 
-var url, token string = getConfigValues()
+var splunkUrl, token string = getConfigValues()
 
 func RunSplunkQuery(month, year string) {
 	// To iterate through all days use addDate to increment base date and add one 1 base date to get end of range
@@ -20,13 +24,27 @@ func RunSplunkQuery(month, year string) {
 	fmt.Println(dir)
 
 	fmt.Println(first)
-	for i := 0; i < days; i++ {
+	for i := 0; i < 3; i++ {
 		fmt.Println(i)
 		earliest, latest := internal.QueryDates(first.AddDate(0, 0, i))
-
-		fmt.Printf("%s to %s\n", earliest, latest)
+		sendHttpRequest(earliest, latest)
 	}
 }
+
+func sendHttpRequest(earliest, latest string) {
+	splunkUrl, token := getConfigValues()
+	formData := url.Values{}
+	formData.Set("earliest", earliest)
+	formData.Set("latest", latest)
+	reqBody := strings.NewReader(formData.Encode())
+	resp, _ := http.Post(splunkUrl, "application/x-www-form-urlencoded", reqBody)
+	resp.Header.Add("Authorization", token)
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+	fmt.Printf("%s \n", respBody)
+}
+
+func writeRespToFile() {}
 
 func setupSplunkExport(month, year string) (filepath string, firstDay time.Time, days int) {
 	directoryName := fmt.Sprintf("%s_%s", month, year)
