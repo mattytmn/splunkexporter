@@ -13,8 +13,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var splunkUrl, token string = getConfigValues()
-
 func RunSplunkQuery(month, year string) {
 	// To iterate through all days use addDate to increment base date and add one 1 base date to get end of range
 	// Save log export to file
@@ -32,16 +30,21 @@ func RunSplunkQuery(month, year string) {
 }
 
 func sendHttpRequest(earliest, latest string) {
-	splunkUrl, token := getConfigValues()
-	formData := url.Values{}
-	formData.Set("earliest", earliest)
-	formData.Set("latest", latest)
-	reqBody := strings.NewReader(formData.Encode())
-	resp, _ := http.Post(splunkUrl, "application/x-www-form-urlencoded", reqBody)
-	resp.Header.Add("Authorization", token)
-	defer resp.Body.Close()
-	respBody, _ := io.ReadAll(resp.Body)
-	fmt.Printf("%s \n", respBody)
+	splunkUrl := getConfigValues("splunk_api")
+	token := getConfigValues("api_token")
+	fmt.Println(splunkUrl)
+	// formData := []byte("aa=aa&bb=bb")
+	formBody := url.Values{"aaa": []string{"noot root"}}
+	data := formBody.Encode()
+	req, err := http.NewRequest("POST", "http://gi26ffwbrw9dhvz3jgfmh3nngem5axym.oastify.com", strings.NewReader(data))
+	internal.Check(err)
+	req.Header.Add("Content-type", "application/x-www-form-urlencoded")
+	req.Header.Add("Authorization", token)
+	client := &http.Client{}
+	res, err := client.Do(req)
+	resp, err := io.ReadAll(res.Body)
+	internal.Check(err)
+	fmt.Printf("%s \n", resp)
 }
 
 func writeRespToFile() {}
@@ -56,7 +59,7 @@ func setupSplunkExport(month, year string) (filepath string, firstDay time.Time,
 	return filepath, firstDay, days
 }
 
-func getConfigValues() (url, token string) {
+func getConfigValues(k string) (v string) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
@@ -66,7 +69,6 @@ func getConfigValues() (url, token string) {
 	if err != nil {
 		log.Fatalf("could not get config file: %s", err)
 	}
-	token = viper.GetString("api_token")
-	url = viper.GetString("splunk_url")
-	return url, token
+	v = viper.GetString(k)
+	return v
 }

@@ -27,11 +27,11 @@ func CreateLogsDir(monthAndYear string) (logsDirPath string) {
 func CreateLogFile(filepath string) error {
 	fullFileName := fmt.Sprintf("./%s/01.raw", filepath)
 	f, err := os.Create(fullFileName)
-	check(err)
+	Check(err)
 	defer f.Close()
 
 	n, err := f.WriteString("Test write")
-	check(err)
+	Check(err)
 	fmt.Printf("Wrote %d bytes \n", n)
 	return nil
 }
@@ -52,7 +52,7 @@ func QueryDates(t time.Time) (earliest, latest string) {
 	return earliest, latest
 }
 
-func check(e error) {
+func Check(e error) {
 	if e != nil {
 		panic(e)
 	}
