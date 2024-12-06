@@ -25,7 +25,7 @@ func CreateLogsDir(monthAndYear string) (logsDirPath string) {
 }
 
 func CreateLogFile(filepath string) error {
-	fullFileName := fmt.Sprintf("./%s/01.raw", filepath)
+	fullFileName := fmt.Sprintf("./%s/%s.raw", filepath)
 	f, err := os.Create(fullFileName)
 	Check(err)
 	defer f.Close()

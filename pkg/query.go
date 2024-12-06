@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -20,39 +21,46 @@ func RunSplunkQuery(month, year string) {
 	dir, first, days := setupSplunkExport(month, year)
 	fmt.Println(days)
 	fmt.Println(dir)
-
 	fmt.Println(first)
-	for i := 0; i < 3; i++ {
+	for i := 0; i < days; i++ {
 		fmt.Println(i)
 		earliest, latest := internal.QueryDates(first.AddDate(0, 0, i))
-		sendHttpRequest(earliest, latest)
+		sendHttpRequest(earliest, latest, dir)
 	}
 }
 
-func sendHttpRequest(earliest, latest string) {
+func sendHttpRequest(earliest, latest, dir string) {
 	splunkUrl := getConfigValues("splunk_api")
-	token := getConfigValues("api_token")
 	fmt.Println(splunkUrl)
-	// formData := []byte("aa=aa&bb=bb")
-	formBody := url.Values{"aaa": []string{"noot root"}}
+	token := getConfigValues("api_token")
+	search := fmt.Sprintf("search index=* earliest=%s latest=%s", earliest, latest)
+	formBody := url.Values{"search": []string{search}, "output_mode": []string{"raw"}}
 	data := formBody.Encode()
-	req, err := http.NewRequest("POST", "http://gi26ffwbrw9dhvz3jgfmh3nngem5axym.oastify.com", strings.NewReader(data))
+	req, err := http.NewRequest("POST", splunkUrl, strings.NewReader(data))
 	internal.Check(err)
 	req.Header.Add("Content-type", "application/x-www-form-urlencoded")
 	req.Header.Add("Authorization", token)
 	client := &http.Client{}
 	res, err := client.Do(req)
-	resp, err := io.ReadAll(res.Body)
+	defer res.Body.Close()
+
+	filename := strings.ReplaceAll(earliest, "/", "")
+	filename = strings.ReplaceAll(filename, ":00:00:00", "")
+	fullFilename := fmt.Sprintf("%s/%s.raw", dir, filename)
+	out, err := os.Create(fullFilename)
 	internal.Check(err)
-	fmt.Printf("%s \n", resp)
+	defer out.Close()
+	io.Copy(out, res.Body)
 }
 
-func writeRespToFile() {}
+func writeRespToFile(dir string, data []byte) error {
+	return nil
+}
 
 func setupSplunkExport(month, year string) (filepath string, firstDay time.Time, days int) {
 	directoryName := fmt.Sprintf("%s_%s", month, year)
 	filepath = internal.CreateLogsDir(directoryName)
-	internal.CreateLogFile(filepath)
+	// internal.CreateLogFile(filepath)
 	monthAndYear := fmt.Sprintf("%s %s", month, year)
 	days, firstDay = internal.GetDaysInMonth(monthAndYear)
 
