@@ -33,6 +33,7 @@ func sendHttpRequest(earliest, latest, dir string) {
 	splunkUrl := getConfigValues("splunk_api")
 	fmt.Println(splunkUrl)
 	token := getConfigValues("api_token")
+	fmt.Println(token)
 	search := fmt.Sprintf("search index=* earliest=%s latest=%s", earliest, latest)
 	formBody := url.Values{"search": []string{search}, "output_mode": []string{"raw"}}
 	data := formBody.Encode()
