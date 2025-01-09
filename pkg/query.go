@@ -48,10 +48,14 @@ func sendHttpRequest(earliest, latest, dir string) {
 	filename := strings.ReplaceAll(earliest, "/", "")
 	filename = strings.ReplaceAll(filename, ":00:00:00", "")
 	fullFilename := fmt.Sprintf("%s/%s.raw", dir, filename)
-	out, err := os.Create(fullFilename)
-	internal.Check(err)
-	defer out.Close()
-	io.Copy(out, res.Body)
+	if !(internal.CheckFileExists(fullFilename)) {
+		out, err := os.Create(fullFilename)
+		internal.Check(err)
+		defer out.Close()
+		io.Copy(out, res.Body)
+	} else {
+		fmt.Printf("File already exists: %s \n", fullFilename)
+	}
 }
 
 func writeRespToFile(dir string, data []byte) error {

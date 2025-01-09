@@ -36,6 +36,16 @@ func CreateLogFile(filepath string) error {
 	return nil
 }
 
+func CheckFileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	// error returned, file does not exist
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
 func GetDaysInMonth(monthAndYear string) (days int, t time.Time) {
 	t, _ = time.Parse(timeLayout, monthAndYear)
 	fmt.Println(t.Date())
